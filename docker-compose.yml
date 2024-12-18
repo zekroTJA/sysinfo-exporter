@@ -1,0 +1,15 @@
+volumes:
+  prometheus-data:
+
+services:
+  prometheus:
+    image: prom/prometheus
+    command:
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.config.file=/etc/prometheus/web-config.yml
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus-data:/prometheus
+      - ./config/prometheus:/etc/prometheus
