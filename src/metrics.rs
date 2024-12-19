@@ -3,7 +3,8 @@ use anyhow::Result;
 use base64::{Engine, prelude::BASE64_STANDARD};
 use prometheus_reqwest_remote_write::WriteRequest;
 use reqwest::{Client, header::HeaderMap};
-use std::{collections::HashMap, env, time::Duration};
+use std::{collections::HashMap, time::Duration};
+use sysinfo::System;
 use tokio::{sync::Mutex, time::sleep};
 
 pub struct Metrics {
@@ -90,5 +91,5 @@ impl Metrics {
 }
 
 fn get_hostname() -> Option<String> {
-    env::var("HOSTNAME").ok()
+    System::host_name()
 }
