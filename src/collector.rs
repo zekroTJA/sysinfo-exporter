@@ -15,7 +15,7 @@ pub struct Collector {
 
     cpu_usage: Gauge,
     used_memory: GenericGauge<AtomicU64>,
-    available_memory: GenericGauge<AtomicU64>,
+    total_memory: GenericGauge<AtomicU64>,
 
     disk_gauges: HashMap<String, (GenericGauge<AtomicU64>, GenericGauge<AtomicU64>)>,
 }
@@ -28,15 +28,13 @@ impl Collector {
 
         let cpu_usage = Gauge::with_opts(Opts::new("sysinfo_cpu_usage", "Average CPU usage"))?;
         let used_memory =
-            GenericGauge::with_opts(Opts::new("sysinfo_used_memory", "Used memory in bytes"))?;
-        let available_memory = GenericGauge::with_opts(Opts::new(
-            "sysinfo_available_memory",
-            "Available memory in bytes",
-        ))?;
+            GenericGauge::with_opts(Opts::new("sysinfo_memory_used", "Used memory in bytes"))?;
+        let total_memory =
+            GenericGauge::with_opts(Opts::new("sysinfo_memory_total", "Total memory in bytes"))?;
 
         registry.register(Box::new(cpu_usage.clone()))?;
         registry.register(Box::new(used_memory.clone()))?;
-        registry.register(Box::new(available_memory.clone()))?;
+        registry.register(Box::new(total_memory.clone()))?;
 
         let mut disk_gauges = HashMap::new();
         disks.refresh(true);
@@ -65,7 +63,7 @@ impl Collector {
             registry,
             cpu_usage,
             used_memory,
-            available_memory,
+            total_memory,
             disk_gauges,
         })
     }
@@ -75,7 +73,7 @@ impl Collector {
 
         self.cpu_usage.set(self.system.global_cpu_usage() as f64);
         self.used_memory.set(self.system.used_memory());
-        self.available_memory.set(self.system.available_memory());
+        self.total_memory.set(self.system.total_memory());
 
         self.disks.refresh(false);
 
