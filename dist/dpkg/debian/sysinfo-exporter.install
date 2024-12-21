@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+case "$(dpkg-architecture -qDEB_BUILD_ARCH)" in
+  amd64)
+    install -D -m 0755 bin/sysinfo-exporter-v*-x86_64-unknown-linux-musl /usr/local/bin/sysinfo-exporter
+    ;;
+  arm64)
+    install -D -m 0755 bin/sysinfo-exporter-v*-aarch64-unknown-linux-musl /usr/local/bin/sysinfo-exporter
+    ;;
+  *)
+    echo "Unsupported architecture" >&2
+    exit 1
+    ;;
+esac
+
+install -D -m 0644 sysinfo-exporter.service /etc/systemd/system/sysinfo-exporter.service
+systemctl enable sysinfo-exporter.service
+systemctl start sysinfo-exporter.service
