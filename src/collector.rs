@@ -7,6 +7,11 @@ use prometheus::{
 use std::collections::HashMap;
 use sysinfo::{Disks, System};
 
+struct DiskMetrics {
+    free_gauge: GenericGauge<AtomicU64>,
+    total_gauge: GenericGauge<AtomicU64>,
+}
+
 pub struct Collector {
     registry: Registry,
 
@@ -17,7 +22,7 @@ pub struct Collector {
     used_memory: GenericGauge<AtomicU64>,
     total_memory: GenericGauge<AtomicU64>,
 
-    disk_gauges: HashMap<String, (GenericGauge<AtomicU64>, GenericGauge<AtomicU64>)>,
+    disk_gauges: HashMap<String, DiskMetrics>,
 }
 
 impl Collector {
@@ -39,7 +44,7 @@ impl Collector {
         let mut disk_gauges = HashMap::new();
         disks.refresh(true);
         for disk in &disks {
-            let free_guage = GenericGauge::with_opts(
+            let free_gauge = GenericGauge::with_opts(
                 Opts::new("sysinfo_disk_free", "Drive free space in bytes")
                     .const_label("name", disk.name().to_string_lossy())
                     .const_label("mount", disk.mount_point().to_string_lossy()),
@@ -49,11 +54,14 @@ impl Collector {
                     .const_label("name", disk.name().to_string_lossy())
                     .const_label("mount", disk.mount_point().to_string_lossy()),
             )?;
-            registry.register(Box::new(free_guage.clone()))?;
+            registry.register(Box::new(free_gauge.clone()))?;
             registry.register(Box::new(total_gauge.clone()))?;
             disk_gauges.insert(
                 disk.mount_point().to_string_lossy().to_string(),
-                (free_guage, total_gauge),
+                DiskMetrics {
+                    free_gauge,
+                    total_gauge,
+                },
             );
         }
 
@@ -81,11 +89,11 @@ impl Collector {
             let Some(mount) = disk.mount_point().to_str() else {
                 continue;
             };
-            let Some((free_gauge, total_gauge)) = self.disk_gauges.get(mount) else {
+            let Some(metrics) = self.disk_gauges.get(mount) else {
                 continue;
             };
-            free_gauge.set(disk.available_space());
-            total_gauge.set(disk.total_space());
+            metrics.free_gauge.set(disk.available_space());
+            metrics.total_gauge.set(disk.total_space());
         }
     }
 
