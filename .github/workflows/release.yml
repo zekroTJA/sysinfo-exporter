@@ -73,9 +73,9 @@ jobs:
           echo "ASSET_PATH=$ASSET_PATH" >> $GITHUB_ENV
 
       - name: Upload Artifcats
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: artifacts
+          name: artifacts-${{ matrix.target }}
           path: ${{ env.ASSET_PATH }}
           retention-days: 1
 
@@ -104,11 +104,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Retrieve backend binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: artifacts
-          path: dist/dpkg/usr/local/bin/
-          pattern: ${{ matrix.target }}
+          name: artifacts-${{ matrix.target }}
+          path: dist/dpkg/usr/local/bin
+      - name: Rename binary
+        run: |
+          mv dist/dpkg/usr/local/bin/sysinfo-exporter-* dist/dpkg/usr/local/bin/sysinfo-exporter
+          chmod +x dist/dpkg/usr/local/bin/sysinfo-exporter
       - name: Build dpkg package
         run: bash ./scripts/build-debian-package.sh ${{ matrix.arch }}
       - name: Release
