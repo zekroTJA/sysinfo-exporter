@@ -1,0 +1,13 @@
+endpoint = ""
+loglevel = "info"
+interval_seconds = 15
+
+# [labels]
+# some = "label"
+
+# [auth.basic]
+# username = ""
+# password = ""
+
+# [auth.bearer]
+# token = ""

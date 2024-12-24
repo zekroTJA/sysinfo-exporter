@@ -1,7 +1,7 @@
 Package: sysinfo-exporter
-Version: 0.1.1
+Version: <<VERSION>>
 Section: utils
 Priority: optional
-Architecture: any
+Architecture: <<ARCH>>
 Maintainer: Ringo Hoffmann <contact@zekro.de>
 Description: Prometheus exporter for generic system metrics
