@@ -1,13 +1,26 @@
-endpoint = ""
-loglevel = "info"
-interval_seconds = 15
+# The write API endpoint of the target prometheus instance.
+# Example: https://prometheus.example.com/api/v1/write
+# endpoint = ""
 
-# [labels]
-# some = "label"
-
+# When the target prometheus instance requires authentication,
+# here you can specify the type and credentials.
 # [auth.basic]
 # username = ""
 # password = ""
-
 # [auth.bearer]
 # token = ""
+
+# The log level of the application logger.
+# Besides the global log level, you can specify levels for filters.
+# Here you can find more information:
+# https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives
+loglevel = "info"
+
+# The interval (in seconds) in which system information data is
+# refreshed and pushed to the prometheus instance.
+interval_seconds = 15
+
+# You can specify additional labels, which are added to each
+# metric sent from this instance.
+# [labels]
+# some = "label"
